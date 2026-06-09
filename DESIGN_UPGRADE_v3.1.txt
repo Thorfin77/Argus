@@ -1,0 +1,252 @@
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                                                                           ║
+║              🎉 Argus v1.0 - DESIGN UPGRADE 🎉             ║
+║                                                                           ║
+║            Professional Design Enhancement with Bigger Text &             ║
+║               Realistic Button Colors + Argus Branding               ║
+║                                                                           ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+
+═══════════════════════════════════════════════════════════════════════════════
+WHAT'S NEW IN v1.0:
+═══════════════════════════════════════════════════════════════════════════════
+
+✅ BIGGER TEXT FOR BETTER READABILITY
+   - Main header: 18pt (was 14pt)
+   - Section labels: 11pt Bold (was default)
+   - Log widget: 12px (was 10px)
+   - Input fields: 11px (was default)
+   - Table content: 11px (was default)
+   - Overall font size: 11pt (was 9pt)
+
+✅ MORE REALISTIC BUTTON STYLING
+   - Buttons now have proper borders with darker shades
+   - Hover states with enhanced colors
+   - Pressed states with darker colors
+   - Fixed heights (45px) for better visibility
+   - Font sizes 11pt Bold for clarity
+   
+   SCAN BUTTON (Blue):
+   - Normal: #0066cc with #004488 border
+   - Hover: #0088ff with #0055aa border
+   - Pressed: #004499 with #003366 border
+
+   SPOOF BUTTON (Red):
+   - Normal: #cc0000 with #990000 border
+   - Hover: #ff3333 with #cc0000 border
+   - Pressed: #990000 with #660000 border
+
+   SNIFF BUTTON (Green):
+   - Normal: #00aa00 with #008800 border
+   - Hover: #00dd00 with #00aa00 border
+   - Pressed: #008800 with #005500 border
+
+✅ ENHANCED INPUT FIELD STYLING
+   - All inputs now have colored borders matching their section:
+     - Target/Gateway IPs: Red border (#cc0000) - Spoofing
+     - Victim IP: Green border (#00aa00) - Sniffing
+     - Interface selector: Blue border (#0066cc) - Network
+   - Fixed heights (35px) for consistency
+   - Better padding (6px vs 5px)
+   - Larger border radius (4px)
+
+✅ PROFESSIONAL BRANDING
+   - App name: "Argus"
+   - Window title: "🛡️ Argus | Argus"
+   - Footer with branding in red (#ff6b6b):
+     "────────────────────────────────
+      © Argus 2026 | Argus
+      ────────────────────────────────"
+   - Centered footer at bottom of left panel
+
+✅ IMPROVED LABEL STYLING
+   - All section headers now Bold 11pt
+   - Consistent color: #7fffd4
+   - Better spacing and visual hierarchy
+   - Clearer distinction between sections
+
+✅ WINDOW SIZE
+   - Height increased from 700 to 850 pixels
+   - Width remains 1400 pixels
+   - More space for better text display
+
+═══════════════════════════════════════════════════════════════════════════════
+VISUAL IMPROVEMENTS:
+═══════════════════════════════════════════════════════════════════════════════
+
+BEFORE:
+  ├─ Buttons: Simple, no borders, minimal feedback
+  ├─ Text: Small (9-10pt), hard to read
+  ├─ Borders: 1px thin gray
+  ├─ Padding: 5px compact
+  ├─ Title: Generic "MITM ATTACK TOOL"
+  └─ No branding or footer
+
+AFTER:
+  ├─ Buttons: Professional with borders, hover/pressed feedback
+  ├─ Text: Large (11-18pt), easy to read
+  ├─ Borders: 2px with color-coded scheme
+  ├─ Padding: 6-12px for breathing room
+  ├─ Title: "🛡️ Argus | Argus"
+  └─ Professional footer with © branding
+
+═══════════════════════════════════════════════════════════════════════════════
+COLOR-CODED BORDERS:
+═══════════════════════════════════════════════════════════════════════════════
+
+🔵 BLUE BORDERS (#0066cc)
+   - Interface selector
+   - Used for network-related inputs
+
+🔴 RED BORDERS (#cc0000)
+   - Target IP field
+   - Gateway IP field
+   - Used for ARP spoofing attacks
+
+🟢 GREEN BORDERS (#00aa00)
+   - Victim IP field
+   - Used for packet sniffing
+
+═══════════════════════════════════════════════════════════════════════════════
+BUTTON INTERACTIONS:
+═══════════════════════════════════════════════════════════════════════════════
+
+All buttons now have 3-state styling:
+
+NORMAL STATE:
+  - Shows primary color
+  - Ready to click
+  - Clear border visible
+
+HOVER STATE:
+  - Lighter/brighter color
+  - Indicates interactive element
+  - User knows they can click
+
+PRESSED STATE:
+  - Darker color
+  - Provides feedback
+  - Visual confirmation of click
+
+═══════════════════════════════════════════════════════════════════════════════
+SECTION HEADERS:
+═══════════════════════════════════════════════════════════════════════════════
+
+⚔️ Argus          (18pt Bold, Red)
+━━━ NETWORK INTERFACE ━━━       (11pt Bold, Cyan)
+━━━ NETWORK SCANNER ━━━         (11pt Bold, Cyan)
+━━━ ARP SPOOFING ━━━            (11pt Bold, Cyan)
+━━━ PACKET SNIFFER ━━━          (11pt Bold, Cyan)
+━━━ DETECTION FILTERS ━━━       (11pt Bold, Cyan)
+━━━ NETWORK TOPOLOGY ━━━        (12pt Bold, Cyan)
+━━━ REAL-TIME LOG ━━━           (12pt Bold, Cyan)
+
+© Argus 2026 | Argus   (9pt, Red, Centered)
+
+═══════════════════════════════════════════════════════════════════════════════
+TEXT SIZES:
+═══════════════════════════════════════════════════════════════════════════════
+
+18pt - Main header "Argus"
+12pt - Section headings (Network Topology, Real-Time Log)
+11pt - All other headers and labels (Network Interface, Scanner, etc.)
+11px - Input field text and table content
+12px - Log widget text
+
+═══════════════════════════════════════════════════════════════════════════════
+PADDING & SPACING:
+═══════════════════════════════════════════════════════════════════════════════
+
+Main Header:
+  - Padding: 12px (was 10px)
+  - Letter spacing: 1px for elegance
+
+Buttons:
+  - Padding: 12px (was 8px)
+  - Height: Fixed 45px (was auto)
+  - Border radius: 6px (was 5px)
+
+Input Fields:
+  - Height: Fixed 35px (was auto)
+  - Padding: 6px (was 5px)
+  - Border radius: 4px (was 3px)
+
+Log Widget:
+  - Padding: 8px (was 5px)
+
+═══════════════════════════════════════════════════════════════════════════════
+WINDOW DIMENSIONS:
+═══════════════════════════════════════════════════════════════════════════════
+
+Width:  1400px (unchanged)
+Height: 850px (increased from 750px)
+
+This extra height accommodates:
+  - Bigger text throughout
+  - Footer branding section
+  - Better spacing between sections
+  - More comfortable reading experience
+
+═══════════════════════════════════════════════════════════════════════════════
+BRANDING:
+═══════════════════════════════════════════════════════════════════════════════
+
+TITLE BAR:
+  🛡️ Argus | Argus
+
+MAIN HEADER:
+  ⚔️ Argus
+
+FOOTER:
+  ────────────────────────────────
+  © Argus 2026 | Argus
+  ────────────────────────────────
+
+STYLE:
+  - All in professional colors (#ff6b6b red for branding)
+  - Centered footer
+  - Clear attribution
+
+═══════════════════════════════════════════════════════════════════════════════
+FEATURES RETAINED FROM v3.0:
+═══════════════════════════════════════════════════════════════════════════════
+
+✅ 5-Color Logging System (Red/Yellow/Green/Magenta/Cyan)
+✅ Detection Filters (TCP, HTTP, DNS, IP)
+✅ Network Visualization (Networkx + Matplotlib)
+✅ ARP Spoofing with color-coded output
+✅ Packet Sniffing with filters
+✅ Timestamp injection [HH:MM:SS]
+✅ Professional dark theme
+
+═══════════════════════════════════════════════════════════════════════════════
+TESTING CHECKLIST:
+═══════════════════════════════════════════════════════════════════════════════
+
+✅ Window displays without errors
+✅ All text is readable
+✅ Buttons have proper colors and borders
+✅ Hover effects work
+✅ Input fields show colored borders
+✅ Footer displays correctly
+✅ All sections clearly labeled
+✅ Log widget shows larger text
+✅ Table content is larger
+✅ Professional appearance achieved
+
+═══════════════════════════════════════════════════════════════════════════════
+LAUNCH COMMAND:
+═══════════════════════════════════════════════════════════════════════════════
+
+python mitm_gui.py
+
+(Run as Administrator for full functionality)
+
+═══════════════════════════════════════════════════════════════════════════════
+
+Version: 1.0 - Design Upgrade Edition
+Release Date: January 16, 2026
+Status: ✅ COMPLETE & TESTED
+Author: Argus
+
+═══════════════════════════════════════════════════════════════════════════════

@@ -1,0 +1,840 @@
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                                                                           ║
+║           🎓 Argus | Application Logic & Functions         ║
+║                                                                           ║
+║        Complete Documentation of Core Functionality for Learning         ║
+║           Red Team Security Skills and Network Analysis                  ║
+║                                                                           ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+
+═══════════════════════════════════════════════════════════════════════════════
+TABLE OF CONTENTS:
+═══════════════════════════════════════════════════════════════════════════════
+
+1. Overview & Purpose
+2. Network Scanner Logic
+3. ARP Spoofer Logic
+4. Packet Sniffer Logic
+5. Color-Coded Logging System
+6. Network Visualization
+7. Threading & Async Operations
+8. Error Handling & Safety
+9. Educational Value
+10. Security Considerations
+
+═══════════════════════════════════════════════════════════════════════════════
+1. OVERVIEW & PURPOSE
+═══════════════════════════════════════════════════════════════════════════════
+
+APPLICATION NAME: Argus v1.0
+PURPOSE: Educational tool for learning network security concepts
+AUTHOR: Argus
+USE CASE: Computer Science & Red Team Learning
+
+MAIN FUNCTIONS:
+  ✓ Network Discovery (ARP Scanning)
+  ✓ Man-in-the-Middle Attack (ARP Spoofing)
+  ✓ Packet Analysis (Network Sniffing)
+  ✓ Network Visualization
+  ✓ Real-time Logging with Color Coding
+
+FRAMEWORK: PySide6 (Qt6 Python bindings)
+KEY LIBRARIES: Scapy, Psutil, NetworkX, Matplotlib
+
+═══════════════════════════════════════════════════════════════════════════════
+2. NETWORK SCANNER LOGIC
+═══════════════════════════════════════════════════════════════════════════════
+
+CLASS: NetworkScanner(QObject)
+INHERITS: Qt QObject for signal/slot mechanism
+SIGNAL: log(message: str, color: str)
+SIGNAL: finished(hosts: List[HostEntry])
+
+PURPOSE:
+  Discover all active hosts on the network using ARP protocol
+
+HOW IT WORKS:
+───────────────
+
+STEP 1: Interface Detection
+  └─ Get network interface from dropdown
+  └─ Retrieve interface IP address
+  └─ Validate IP is not localhost (127.0.0.1) or invalid (0.0.0.0)
+
+STEP 2: Calculate Network Range
+  └─ Get netmask using psutil.net_if_addrs()
+  └─ Create IPv4 network object: IPv4Network(f"{ip}/{netmask}")
+  └─ Extract all host IPs using network.hosts()
+  
+  Example:
+    Interface IP: 192.168.1.100
+    Netmask: 255.255.255.0
+    Network: 192.168.1.0/24
+    Hosts: 192.168.1.1 to 192.168.1.254
+
+STEP 3: Create ARP Packet
+  └─ Ether frame with broadcast MAC: ff:ff:ff:ff:ff:ff
+  └─ ARP protocol layer with target IPs
+  └─ Packet structure:
+      Ethernet(destination=broadcast) / ARP(targets=all_ips)
+
+STEP 4: Send ARP Requests
+  └─ Use scapy.srp() - Send and Receive (Layer 2)
+  └─ Send to all target IPs simultaneously
+  └─ Wait for ARP replies (timeout: 6 seconds)
+
+STEP 5: Parse Responses
+  └─ Extract source IP (psrc) and source MAC (hwsrc)
+  └─ Store in HostEntry dataclass
+  └─ Avoid duplicates using set()
+  └─ Emit log signal for each discovered host (MAGENTA)
+
+STEP 6: Return Results
+  └─ Emit finished signal with list of HostEntry objects
+  └─ Update UI table with discovered hosts
+  └─ Refresh network topology visualization
+
+KEY FUNCTIONS:
+
+scan(iface: str) → void
+  - Entry point called from UI button
+  - Spawns new thread to avoid blocking GUI
+  - Thread target: _scan_thread()
+
+_scan_thread(iface: str) → void
+  - Main scanning logic
+  - Runs in separate thread
+  - Handles exceptions and emits log signals
+  - Calls finished.emit() when complete
+
+THREADING:
+  - Uses threading.Thread(target=..., daemon=True)
+  - Daemon thread exits when main app closes
+  - Prevents UI freezing during scan
+
+LOG SIGNALS EMITTED:
+  [*] Using interface: {iface}           [info - cyan]
+  [*] Interface IP: {ip}                 [success - green]
+  [*] Network: {network}                 [info - cyan]
+  [*] Sending ARP requests...            [info - cyan]
+  [+] HOST FOUND: {ip} → {mac}           [detect - magenta] ← Key detection!
+  [✓] Scan complete: X hosts discovered  [success - green]
+  [!] Scan error: {error}                [error - red]
+
+EXAMPLE NETWORK SCAN:
+```
+[10:30:15] [*] Using interface: Ethernet
+[10:30:15] [*] Interface IP: 192.168.1.100
+[10:30:15] [*] Network: 192.168.1.0/24
+[10:30:15] [*] Sending ARP requests...
+[10:30:18] [+] HOST FOUND: 192.168.1.1 → a4:9e:3d:2b:15:cc
+[10:30:18] [+] HOST FOUND: 192.168.1.50 → 3c:97:0e:a5:2d:11
+[10:30:18] [+] HOST FOUND: 192.168.1.199 → b2:4f:1a:c8:7e:44
+[10:30:21] [✓] Scan complete: 3 hosts discovered
+```
+
+═══════════════════════════════════════════════════════════════════════════════
+3. ARP SPOOFER LOGIC
+═══════════════════════════════════════════════════════════════════════════════
+
+CLASS: ARPSpoofer(QObject)
+INHERITS: Qt QObject for signal/slot mechanism
+STATE: is_running (bool), target/gateway/attacker info
+SIGNAL: log(message: str, color: str)
+
+PURPOSE:
+  Perform Man-in-the-Middle (MITM) attack using ARP spoofing
+  Position attacker between victim and gateway to intercept traffic
+
+HOW IT WORKS:
+───────────────
+
+CONCEPT - The ARP Spoofing Attack:
+  
+  NORMAL NETWORK:
+    Victim → Gateway → Internet
+  
+  AFTER ARP SPOOF:
+    Victim → Attacker ← Gateway
+           (intercepts)
+  
+  Method: Lie to both victim and gateway using forged ARP packets
+  - Tell victim: "I (attacker) am the gateway"
+  - Tell gateway: "I (attacker) am the victim"
+  
+STEP 1: Get Target MAC Address
+  └─ Function: _get_mac(ip: str) → Optional[str]
+  └─ Send ARP request to target IP
+  └─ Wait for ARP reply containing MAC address
+  └─ Return MAC or None if unreachable
+  
+  Process:
+    Send: ARP Who-has {target_ip}?
+    Reply: {target_ip} is-at {target_mac}
+    Return: target_mac
+
+STEP 2: Get Gateway MAC Address
+  └─ Same process as Step 1 but for gateway IP
+  └─ Typical gateway: 192.168.1.1
+
+STEP 3: Get Attacker Information
+  └─ Attacker IP: Current interface IP (scapy.get_if_addr())
+  └─ Attacker MAC: Current interface MAC (scapy.get_if_hwaddr())
+
+STEP 4: Send Forged ARP Packets (Loop)
+  └─ Function: _spoof(target_ip, spoof_ip, target_mac, iface) → void
+  └─ Create ARP packet: op="is-at" (reply, not request)
+  └─ Tell target: "I (spoof_ip) am at {attacker_mac}"
+  └─ Send continuously every 1 second
+  
+  Packet 1 to Victim:
+    ARP reply: "192.168.1.1 is-at {attacker_mac}"
+    Victim thinks attacker IS the gateway
+  
+  Packet 2 to Gateway:
+    ARP reply: "192.168.1.100 is-at {attacker_mac}"
+    Gateway thinks attacker IS the victim
+  
+STEP 5: Continuous Loop
+  └─ While is_running == True:
+      - Send forged ARP to victim
+      - Send forged ARP to gateway
+      - Sleep 1 second
+      - Increment packet counter
+  
+STEP 6: Cleanup - Restore ARP Tables
+  └─ Send legitimate ARP packets 10 times
+  └─ Tell victim: "I (gateway) am at {real_gateway_mac}"
+  └─ Tell gateway: "I (victim) am at {real_victim_mac}"
+  └─ Restore normal network flow
+
+KEY FUNCTIONS:
+
+start_spoof(target_ip: str, gateway_ip: str, iface: str) → void
+  - Entry point from UI button
+  - Set is_running = True
+  - Spawn thread with _spoof_thread()
+
+stop_spoof() → void
+  - User clicks stop button
+  - Set is_running = False
+  - Triggers cleanup in _spoof_thread()
+
+_get_mac(ip: str) → Optional[str]
+  - Get MAC address for any IP
+  - Uses ARP protocol
+  - Returns MAC or None on failure
+  - Called for both target and gateway
+
+_spoof(target_ip, spoof_ip, target_mac, iface) → void
+  - Create and send ONE forged ARP packet
+  - Parameters:
+    * target_ip: Victim IP
+    * spoof_ip: IP to pretend to be (gateway)
+    * target_mac: Victim MAC (where to send)
+    * iface: Network interface to use
+
+_spoof_thread(target_ip, gateway_ip, iface) → void
+  - Main spoofing loop
+  - Runs in separate thread
+  - Gets MAC addresses
+  - Loops sending ARP packets
+  - Handles cleanup and errors
+
+THREADING:
+  - Runs in separate thread (daemon=True)
+  - Prevents UI blocking during continuous sending
+  - Can be stopped with stop_spoof()
+
+LOG SIGNALS EMITTED:
+  [*] Using interface: {iface}              [info - cyan]
+  [*] Getting MAC addresses...              [info - cyan]
+  [+] Target: {ip} ({mac})                  [detect - magenta]
+  [+] Gateway: {ip} ({mac})                 [detect - magenta]
+  [+] Attacker: {ip} ({mac})                [success - green]
+  [*] Starting ARP spoof...                 [warning - yellow]
+  [*] Packets sent: {count}                 [info - cyan]
+  [*] Stopping ARP spoof...                 [warning - yellow]
+  [*] Restoring ARP tables...               [warning - yellow]
+  [✓] ARP spoof stopped and tables restored [success - green]
+  [!] Error messages                        [error - red]
+
+EXAMPLE ARP SPOOF SESSION:
+```
+[10:35:02] [*] Using interface: Ethernet
+[10:35:02] [*] Getting MAC addresses...
+[10:35:04] [+] Target: 192.168.1.100 (3c:97:0e:a5:2d:11)
+[10:35:04] [+] Gateway: 192.168.1.1 (a4:9e:3d:2b:15:cc)
+[10:35:04] [+] Attacker: 192.168.1.105 (b2:4f:1a:c8:7e:44)
+[10:35:04] [*] Starting ARP spoof...
+[10:35:14] [*] Packets sent: 10
+[10:35:24] [*] Packets sent: 20
+[10:35:34] [*] Packets sent: 30
+[10:36:00] [*] Stopping ARP spoof...
+[10:36:00] [*] Restoring ARP tables...
+[10:36:01] [✓] ARP spoof stopped and tables restored
+```
+
+═══════════════════════════════════════════════════════════════════════════════
+4. PACKET SNIFFER LOGIC
+═══════════════════════════════════════════════════════════════════════════════
+
+CLASS: PacketSniffer(QObject)
+INHERITS: Qt QObject for signal/slot mechanism
+STATE: is_running, detection filters (tcp/http/dns/ip), packet_count
+SIGNAL: log(message: str, color: str)
+
+PURPOSE:
+  Capture and analyze network traffic from specific victim
+  Filter packets by type: TCP, HTTP, DNS, IP
+  Display packet details and payloads in real-time
+
+HOW IT WORKS:
+───────────────
+
+STEP 1: Set Detection Filters
+  └─ Function: set_detection_filters(tcp, http, dns, ip) → void
+  └─ Called BEFORE starting sniff
+  └─ Stores filter preferences as boolean flags
+  
+  Example:
+    set_detection_filters(tcp=True, http=True, dns=False, ip=True)
+    Only detect: TCP, HTTP, All IP (not DNS)
+
+STEP 2: Start Sniffing
+  └─ Function: start_sniff(iface: str, victim_ip: str) → void
+  └─ Set is_running = True
+  └─ Reset packet counter
+  └─ Spawn thread with _sniff_thread()
+  
+  Note: ARP spoof should be running!
+  Without ARP spoof, only see traffic from victim's own machine
+
+STEP 3: Packet Capture Loop
+  └─ Function: _sniff_thread(iface, victim_ip) → void
+  └─ Call scapy.sniff() with process function
+  └─ For each captured packet:
+      - Check if packet involves victim_ip
+      - Filter by enabled detection types
+      - Parse and log packet details
+
+STEP 4: Packet Filtering Logic
+  
+  TCP TRAFFIC DETECTION:
+  ─────────────────────
+  Condition: detect_tcp == True AND packet has TCP layer
+  Filter: Check if source OR destination is victim
+  Actions:
+    - Extract source IP and port
+    - Extract destination IP and port
+    - Show port numbers
+    - Show payload data if present
+    - Log format: [TCP] {src}:{port} → {dst}:{port}
+  
+  Example:
+    [TCP] 192.168.1.100:54321 → 8.8.8.8:53
+    Shows victim contacting Google DNS
+  
+  HTTP REQUEST DETECTION:
+  ──────────────────────
+  Condition: detect_http == True AND packet has HTTP layer
+  Filter: Check if source OR destination is victim
+  Actions:
+    - Extract HTTP request method (GET, POST, etc.)
+    - Extract target host (Host header)
+    - Extract requested path (Path header)
+    - Show request body/data if present
+    - Log format: [HTTP REQUEST] DETECTED!
+  
+  Example:
+    [HTTP REQUEST] DETECTED!
+    Host: www.google.com
+    Path: /search
+    Method: GET
+    Shows victim searching on Google
+  
+  DNS QUERY DETECTION:
+  ───────────────────
+  Condition: detect_dns == True AND packet has DNS layer
+  Filter: Check DNS query domain
+  Actions:
+    - Extract domain name being queried
+    - Extract query type (A, AAAA, MX, etc.)
+    - Log format: [DNS] QUERY DETECTED!
+    - Domain: {domain_name}
+  
+  Example:
+    [DNS] QUERY DETECTED!
+    Domain: facebook.com
+    Shows victim looking up Facebook's IP
+  
+  ALL IP TRAFFIC DETECTION:
+  ────────────────────────
+  Condition: detect_ip == True AND packet has IP layer
+  Filter: Check if source OR destination is victim
+  Actions:
+    - Log all packets with victim IP
+    - Creates "detection filter"
+    - Used with other filters above
+
+STEP 5: Payload Extraction
+  └─ For TCP and HTTP: Check if packet has Raw layer
+  └─ Raw layer contains actual data (not headers)
+  └─ Decode bytes to string (ignore errors)
+  └─ Show first 100 characters
+  └─ Useful for: passwords, messages, form data
+
+STEP 6: Stop Sniffing
+  └─ Function: stop_sniff() → void
+  └─ Set is_running = False
+  └─ Trigger stop_filter in scapy.sniff()
+  └─ Thread stops automatically
+
+KEY FUNCTIONS:
+
+start_sniff(iface: str, victim_ip: str) → void
+  - Entry point from UI button
+  - Set is_running = True
+  - Reset packet_count = 0
+  - Spawn thread with _sniff_thread()
+
+stop_sniff() → void
+  - User clicks stop button
+  - Set is_running = False
+  - Stop filter triggers thread exit
+
+set_detection_filters(tcp, http, dns, ip) → void
+  - Configure what to detect
+  - Called before start_sniff()
+  - Updates instance variables
+
+_sniff_thread(iface: str, victim_ip: str) → void
+  - Main sniffing loop
+  - Runs in separate thread
+  - Uses scapy.sniff() for packet capture
+  - Process function analyzes each packet
+  - Continues until is_running = False
+
+THREADING:
+  - Runs in separate thread (daemon=True)
+  - Prevents UI blocking during sniffing
+  - Can be stopped with stop_sniff()
+
+PACKET PROCESSING:
+  ```
+  scapy.sniff(
+    iface=iface,              # Capture on this interface
+    prn=process,              # Function to call for each packet
+    store=False,              # Don't store packets in memory
+    stop_filter=...           # Stop when is_running = False
+  )
+  ```
+
+LOG SIGNALS EMITTED:
+  [+] Sniffing on {iface} for victim {ip}                [success - green]
+  [*] Filters - TCP: ?, HTTP: ?, DNS: ?, IP: ?           [info - cyan]
+  ============================================================     [separator]
+  [TCP] {src}:{sport} → {dst}:{dport}                     [detect - magenta]
+  PAYLOAD: {data}                                         [warning - yellow]
+  [HTTP REQUEST] DETECTED!                                [detect - magenta]
+  Host: {hostname}                                        [warning - yellow]
+  Path: {path}                                            [warning - yellow]
+  Method: {method}                                        [info - cyan]
+  Data: {payload}                                         [warning - yellow]
+  [DNS] QUERY DETECTED!                                   [detect - magenta]
+  Domain: {domain}                                        [warning - yellow]
+  [!] Permission denied - Run as Administrator            [error - red]
+
+EXAMPLE SNIFFING SESSION:
+```
+[10:37:00] [+] Sniffing on Ethernet for victim 192.168.1.100
+[10:37:00] [*] Filters - TCP: True, HTTP: True, DNS: True, IP: True
+[10:37:02] ============================================================
+[10:37:02] [TCP] 192.168.1.100:54321 → 8.8.8.8:53
+[10:37:03] ============================================================
+[10:37:03] [DNS] QUERY DETECTED!
+[10:37:03] Domain: www.google.com
+[10:37:05] ============================================================
+[10:37:05] [HTTP REQUEST] DETECTED!
+[10:37:05] Host: www.google.com
+[10:37:05] Path: /search?q=network+security
+[10:37:05] Method: GET
+[10:37:10] [*] Stopping packet sniff...
+```
+
+═══════════════════════════════════════════════════════════════════════════════
+5. COLOR-CODED LOGGING SYSTEM
+═══════════════════════════════════════════════════════════════════════════════
+
+CLASS: ColoredLogWidget(QPlainTextEdit)
+INHERITS: PySide6 QPlainTextEdit (read-only text editor)
+PURPOSE: Display colored log messages with timestamps
+
+HOW IT WORKS:
+───────────────
+
+COLOR SCHEME:
+  'error':   #ff4444  (Red)      - Errors and failures
+  'warning': #ffaa00  (Orange)   - Warnings and status
+  'success': #44ff44  (Green)    - Success and completion
+  'detect':  #ff0088  (Magenta)  - Important detections!
+  'info':    #00ffff  (Cyan)     - Information messages
+  'debug':   #aaaaaa  (Gray)     - Debug info
+
+MESSAGE FORMAT:
+  [HH:MM:SS] Message Text
+  └─ Timestamp added automatically
+  └─ Color applied to entire message
+  └─ Auto-scrolls to newest message
+
+KEY FUNCTION:
+
+log(message: str, color: str = 'info') → void
+  - Add colored message to log
+  - Parameters:
+    * message: Text to display
+    * color: One of 'error', 'warning', 'success', 'detect', 'info', 'debug'
+  
+  Steps:
+    1. Move cursor to end of text
+    2. Get current character format
+    3. Set color from COLOR_MAP
+    4. Get current timestamp
+    5. Insert "[HH:MM:SS] " in color
+    6. Insert message text in same color
+    7. Add newline
+    8. Ensure cursor is visible (auto-scroll)
+
+USAGE THROUGHOUT APP:
+  Network Scanner:
+    - [info] General status messages (cyan)
+    - [success] Completion messages (green)
+    - [detect] Found hosts (magenta) ← Key!
+    - [error] Scan errors (red)
+  
+  ARP Spoofer:
+    - [info] Setup messages (cyan)
+    - [detect] Target/gateway info (magenta) ← Key!
+    - [success] Spoofing started (green)
+    - [warning] Important status (yellow)
+    - [error] Spoof errors (red)
+  
+  Packet Sniffer:
+    - [success] Sniffing started (green)
+    - [info] Filter info (cyan)
+    - [detect] Detected packets (magenta) ← Key!
+    - [warning] Packet payloads (yellow)
+    - [error] Sniffing errors (red)
+
+═══════════════════════════════════════════════════════════════════════════════
+6. NETWORK VISUALIZATION
+═══════════════════════════════════════════════════════════════════════════════
+
+CLASS: NetworkMapCanvas(FigureCanvas)
+INHERITS: Matplotlib FigureCanvas (embedded matplotlib in Qt)
+PURPOSE: Visual representation of network topology
+
+HOW IT WORKS:
+───────────────
+
+COMPONENTS:
+  - NetworkX: Graph library for node/edge management
+  - Matplotlib: Visualization library
+  - PySide6: Qt integration for embedding
+
+GRAPH STRUCTURE:
+  Nodes: Gateway and discovered hosts
+  Edges: Connections between gateway and each host
+  Layout: Spring layout algorithm for automatic positioning
+
+KEY FUNCTION:
+
+update_network(hosts: List[HostEntry], gateway_ip: str) → void
+  Steps:
+    1. Clear previous graph and plot
+    2. Add gateway as node (red color #ff6b6b)
+    3. For each discovered host:
+       - Add host node (blue color #00d4ff)
+       - Add edge from gateway to host
+    4. Calculate spring layout (k=2, iterations=50)
+       - Spreads nodes evenly
+       - Prevents overlap
+       - Creates hierarchical look
+    5. Draw edges (cyan, 2px width)
+    6. Draw nodes with colors:
+       - Red: Gateway (central authority)
+       - Blue: Host computers (on network)
+    7. Add labels (IP addresses and last 5 MAC chars)
+    8. Redraw canvas
+
+VISUAL RESULT:
+  Network Topology (after scan):
+  
+        ╭─────────────────────────────╮
+        │  192.168.1.1 (Gateway)      │ ← Red Node
+        │  [a4:9e]                    │
+        ╰─────────────────────────────╯
+         │          │          │
+         │(edge)   │(edge)   │(edge)
+         │          │          │
+        ┌┴────────┐┌┴───────┐┌┴───────┐
+        │ 192.168.│ 192.168.│ 192.168.│
+        │ 1.50    │ 1.100   │ 1.199   │ ← Blue Nodes
+        │ [0e:a5] │ [1a:c8] │ [3d:2b] │
+        └────────┘└───────┘└───────┘
+
+THEME:
+  Background: Dark (#050810)
+  Text: Light cyan (#e6faff)
+  Edges: Cyan (#7fffd4)
+  Grid: Dark colored
+
+═══════════════════════════════════════════════════════════════════════════════
+7. THREADING & ASYNC OPERATIONS
+═══════════════════════════════════════════════════════════════════════════════
+
+WHY THREADING?
+──────────────
+Network operations are BLOCKING:
+  - Network scanning: Waits for ARP replies (seconds)
+  - ARP spoofing: Continuous loop (indefinite)
+  - Packet sniffing: Waits for packets (indefinite)
+
+Without threading: UI freezes while waiting
+
+THREADING IMPLEMENTATION:
+──────────────────────────
+
+Pattern Used:
+```python
+def start_operation(self, params):
+    self.is_running = True
+    threading.Thread(
+        target=self._thread_function,
+        args=(params,),
+        daemon=True
+    ).start()
+
+def _thread_function(self, params):
+    try:
+        # Actual blocking work
+        while self.is_running:
+            # Do work
+            pass
+    except Exception as e:
+        self.log.emit(f"Error: {e}", "error")
+```
+
+DAEMON THREADS:
+  - Daemon=True: Thread exits when main app closes
+  - Prevents zombie threads
+  - Automatic cleanup
+
+SIGNALS FOR THREAD-SAFE COMMUNICATION:
+  Qt Signals: Thread-safe message passing
+  Emitted from worker threads
+  Received by main GUI thread
+  Example: self.log.emit("message", "color")
+
+STOPPING THREADS:
+  - Set is_running = False
+  - Thread checks flag and exits
+  - Graceful shutdown (no forced termination)
+
+═══════════════════════════════════════════════════════════════════════════════
+8. ERROR HANDLING & SAFETY
+═══════════════════════════════════════════════════════════════════════════════
+
+CRITICAL CHECKS:
+─────────────────
+
+Network Scanner:
+  ✓ Check interface has valid IP (not 127.0.0.1 or 0.0.0.0)
+  ✓ Check netmask can be determined
+  ✓ Handle ARP timeout gracefully
+  ✓ Catch and log all exceptions
+
+ARP Spoofer:
+  ✓ Check target and gateway MACs are resolvable
+  ✓ Handle timeout when getting MACs
+  ✓ Validate interface is valid
+  ✓ Gracefully handle permission errors
+  ✓ RESTORE ARP TABLES on stop (critical!)
+
+Packet Sniffer:
+  ✓ Check victim IP is provided
+  ✓ Check interface is valid
+  ✓ Handle permission errors (requires admin)
+  ✓ Safely decode packet data (ignore errors)
+  ✓ Check packet has required layers before access
+
+PERMISSION REQUIREMENTS:
+  - Network operations require Administrator/Root privileges
+  - Scapy needs raw socket access
+  - ARP spoofing needs packet injection capability
+  - Application checks and informs user if permission denied
+
+ARP TABLE RESTORATION:
+  - CRITICAL: Send legitimate ARP packets 10 times
+  - Tell victim its real gateway
+  - Tell gateway its real victim
+  - Restores normal network operation
+  - Prevents permanent victim isolation
+
+═══════════════════════════════════════════════════════════════════════════════
+9. EDUCATIONAL VALUE
+═══════════════════════════════════════════════════════════════════════════════
+
+NETWORKING CONCEPTS LEARNED:
+
+1. ARP PROTOCOL (Address Resolution Protocol)
+   ├─ How devices discover MAC addresses
+   ├─ ARP request/reply mechanism
+   ├─ ARP spoofing vulnerability
+   └─ Why ARP is not authenticated
+
+2. MITM (Man-in-the-Middle) ATTACK
+   ├─ How to position yourself between two hosts
+   ├─ How to intercept traffic
+   ├─ How ARP spoofing enables MITM
+   └─ Defense mechanisms
+
+3. PACKET STRUCTURE
+   ├─ Ethernet frames
+   ├─ IP headers
+   ├─ TCP/UDP protocols
+   ├─ Application layer (HTTP, DNS)
+   └─ How layers stack together
+
+4. NETWORK SCANNING
+   ├─ How to discover hosts on network
+   ├─ How to determine network range
+   ├─ Active vs passive reconnaissance
+   └─ Scapy library usage
+
+5. PYTHON NETWORKING
+   ├─ Scapy for packet crafting/sniffing
+   ├─ Socket programming basics
+   ├─ Threading for async operations
+   ├─ Signal/slot patterns (Qt)
+   └─ Network interface access
+
+6. SECURITY IMPLICATIONS
+   ├─ Why network switches are important
+   ├─ Why encryption matters
+   ├─ How attackers intercept traffic
+   ├─ Network security best practices
+   └─ Detection and prevention
+
+RED TEAM SKILLS DEVELOPED:
+  ✓ Reconnaissance (network scanning)
+  ✓ Active attack execution (ARP spoofing)
+  ✓ Traffic analysis (packet sniffing)
+  ✓ Network visualization
+  ✓ Real-time monitoring
+  ✓ Situational awareness
+
+═══════════════════════════════════════════════════════════════════════════════
+10. SECURITY CONSIDERATIONS
+═══════════════════════════════════════════════════════════════════════════════
+
+⚠️ LEGAL DISCLAIMER:
+  - For EDUCATIONAL use only
+  - Requires permission from network owner
+  - Unauthorized access is ILLEGAL
+  - Pentest/red team work requires written authorization
+  - Violating laws has serious consequences
+
+ETHICAL USE:
+  ✓ Use only on networks you own or have permission
+  ✓ Use in controlled lab environments
+  ✓ Use for learning security concepts
+  ✓ Use to improve defensive capabilities
+  ✗ Never use against unknown networks
+  ✗ Never use for malicious purposes
+  ✗ Never use to steal data
+  ✗ Never use without explicit permission
+
+SAFE LAB SETUP:
+  1. Virtual machines (VirtualBox, VMware)
+  2. Isolated network
+  3. No internet access
+  4. Test only on your own systems
+  5. No real victim data
+
+DETECTION:
+  Admins can detect MITM attacks:
+  ├─ ARP monitoring tools
+  ├─ IDS/IPS systems
+  ├─ Network monitoring
+  ├─ Unusual traffic patterns
+  ├─ Certificate validation failures
+  └─ Encrypted traffic inspection
+
+DEFENSES:
+  ├─ HTTPS/TLS encryption
+  ├─ VPN usage
+  ├─ Arp binding/static ARP
+  ├─ Network monitoring
+  ├─ 802.1X authentication
+  ├─ IPv6 security
+  └─ Defense in depth strategies
+
+═══════════════════════════════════════════════════════════════════════════════
+QUICK REFERENCE - FUNCTION SIGNATURES
+═══════════════════════════════════════════════════════════════════════════════
+
+NetworkScanner:
+  scan(iface: str) → void
+  _scan_thread(iface: str) → void [PRIVATE]
+  Signals: log(str, str), finished(List[HostEntry])
+
+ARPSpoofer:
+  start_spoof(target_ip: str, gateway_ip: str, iface: str) → void
+  stop_spoof() → void
+  _get_mac(ip: str) → Optional[str] [PRIVATE]
+  _spoof(target_ip, spoof_ip, target_mac, iface) → void [PRIVATE]
+  _spoof_thread(target_ip, gateway_ip, iface) → void [PRIVATE]
+  Signals: log(str, str)
+
+PacketSniffer:
+  set_detection_filters(tcp=bool, http=bool, dns=bool, ip=bool) → void
+  start_sniff(iface: str, victim_ip: str) → void
+  stop_sniff() → void
+  _sniff_thread(iface: str, victim_ip: str) → void [PRIVATE]
+  Signals: log(str, str)
+
+ColoredLogWidget:
+  log(message: str, color: str = 'info') → void
+
+NetworkMapCanvas:
+  update_network(hosts: List[HostEntry], gateway_ip: str = None) → void
+
+═══════════════════════════════════════════════════════════════════════════════
+CONCLUSION
+═══════════════════════════════════════════════════════════════════════════════
+
+This application demonstrates practical implementation of:
+  ✓ Network reconnaissance
+  ✓ Layer 2 (ARP) attacks
+  ✓ Packet analysis and inspection
+  ✓ Multi-threaded applications
+  ✓ Professional GUI development
+  ✓ Real-time logging and visualization
+  ✓ Network security concepts
+
+Suitable for:
+  ✓ Computer Science students
+  ✓ Cybersecurity learners
+  ✓ Red team training
+  ✓ Network administration learning
+  ✓ Penetration testing education
+
+Remember: Use ethically and legally!
+
+═══════════════════════════════════════════════════════════════════════════════
+Version: 1.0
+Author: Argus
+Date: January 16, 2026
+License: Educational Use Only
+═══════════════════════════════════════════════════════════════════════════════

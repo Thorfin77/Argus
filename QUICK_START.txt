@@ -1,0 +1,91 @@
+QUICK START GUIDE - MITM TOOL WITH NETWORK MAP
+===============================================
+
+STEP 1: INSTALL PACKAGES (First Time Only)
+==========================================
+Option A - Using batch file:
+  Double-click: install_packages.bat
+
+Option B - Manual installation:
+  1. Open PowerShell as Administrator
+  2. Run: pip install PySide6 scapy psutil matplotlib networkx
+
+STEP 2: RUN THE APPLICATION
+===========================
+1. Open PowerShell as Administrator
+2. Run: python mitm_gui.py
+
+2. SCAN NETWORK:
+   - Click "Scan Network" button
+   - Wait for results
+   - See discovered hosts in the table
+   - Watch the Network Map update with visualization
+
+3. SETUP ARP SPOOF:
+   - Click a host in the table (or type IP manually)
+   - Enter Target IP
+   - Enter Gateway IP (usually 192.168.1.1)
+   - Click "Start ARP Spoof"
+
+4. OPTIONAL - SNIFF PACKETS:
+   - Enter Victim IP
+   - Click "Start Sniffing"
+   - Watch logs for captured packets
+
+5. STOP ATTACK:
+   - Click the red button to stop operations
+   - ARP tables will be restored
+
+FEATURES YOU'LL SEE:
+====================
+✓ Network Visualization
+  - Red node = Gateway
+  - Blue nodes = Discovered hosts
+  - Lines = Network connections
+
+✓ Real-time Log
+  - All operation status
+  - Errors and warnings
+  - Packet capture output
+
+✓ Host Discovery
+  - IP addresses
+  - MAC addresses
+  - Network topology
+
+NETWORK MAP COLORS:
+====================
+🔴 RED = Gateway/Router
+🔵 BLUE = Network Hosts
+
+IMPORTANT NOTES:
+================
+- ALWAYS run as Administrator
+- Use only on YOUR network
+- For educational purposes only
+- Don't use on networks without permission
+
+FILES:
+======
+mitm_gui.py          - Main application (run this)
+install_packages.bat - Install required packages
+requirements.txt     - List of dependencies
+README_NETWORK_MAP.txt - Full documentation
+
+TROUBLESHOOTING:
+================
+Error: "No interface found"
+  → Select correct interface from dropdown
+  → Run as Administrator
+
+Error: "Could not resolve MAC"
+  → Target/Gateway not reachable
+  → Use correct IPs
+  → Check network connection
+
+No Network Map displayed:
+  → Install matplotlib: pip install matplotlib
+  → Install networkx: pip install networkx
+  → Restart the application
+
+Questions? Check README_NETWORK_MAP.txt for detailed documentation.

@@ -1,0 +1,233 @@
+MITM PROFESSIONAL EDITION v3.0 - FEATURES & IMPROVEMENTS
+==========================================================
+
+NEW PROFESSIONAL FEATURES:
+=========================
+
+1. COLORED LOG OUTPUT
+   ✓ Red (#ff4444) - Errors and critical issues
+   ✓ Orange/Yellow (#ffaa00) - Warnings and important info
+   ✓ Green (#44ff44) - Success messages
+   ✓ Magenta (#ff0088) - Detections (hosts found, packets detected)
+   ✓ Cyan (#00ffff) - General information
+   
+   Each log message includes:
+   - Timestamp [HH:MM:SS]
+   - Color-coded message type
+   - Real-time updates
+
+2. DETECTION FILTERS
+   Select what to detect:
+   ☐ TCP Traffic - Monitor TCP connections and data
+   ☐ HTTP Requests - Capture HTTP GET/POST requests with URLs
+   ☐ DNS Queries - Track domain name lookups
+   ☐ IP Traffic - Monitor all IP layer traffic
+   
+   Features activate when you enable them before sniffing
+
+3. PROFESSIONAL UI DESIGN
+   ✓ Modern dark theme with accent colors
+   ✓ Emoji icons for quick visual reference
+   ⚔️ - Main header
+   🔍 - Scan button
+   ⚡ - ARP spoof
+   📡 - Packet sniffer
+   ⏹️ - Stop buttons
+   
+   ✓ Color-coded buttons:
+   - Blue (#0066cc) for scanning
+   - Red (#cc0000) for attacking
+   - Green (#00aa00) for sniffing
+
+4. ENHANCED LOG MESSAGES
+   
+   NETWORK SCANNER:
+   - [*] Using interface (Info)
+   - [*] Interface IP address (Info)
+   - [*] Sending ARP requests (Info)
+   - [+] HOST FOUND: IP → MAC (Detection/Magenta)
+   - [✓] Scan complete: X hosts discovered (Success/Green)
+   
+   ARP SPOOFER:
+   - [*] Using interface (Info)
+   - [*] Getting MAC addresses (Info)
+   - [+] Target/Gateway info (Detection)
+   - [+] Attacker IP/MAC (Success)
+   - [*] Starting ARP spoof (Warning)
+   - [*] Packets sent count (Info)
+   - [✓] ARP spoof stopped and tables restored (Success)
+   
+   PACKET SNIFFER:
+   - [+] Sniffing on interface for victim (Success)
+   - [*] Filters enabled (Info)
+   - [TCP] Connection detected (Detection/Magenta)
+   - [HTTP REQUEST] DETECTED! (Detection/Magenta)
+   - [DNS] QUERY DETECTED! (Detection/Magenta)
+   - PAYLOAD: Captured data (Warning)
+
+5. DETECTION TYPES EXPLAINED
+   
+   TCP TRAFFIC:
+   - Shows: Source:Port → Destination:Port
+   - Shows: Raw TCP payload data
+   - Useful for: Chat apps, custom protocols
+   
+   HTTP REQUESTS:
+   - Shows: Host, Path, Method (GET/POST)
+   - Shows: Request data and headers
+   - Useful for: Web browsing, API calls
+   
+   DNS QUERIES:
+   - Shows: Domain names being looked up
+   - Shows: Query type and response
+   - Useful for: Website visits, DNS exfiltration
+   
+   IP TRAFFIC:
+   - Shows: All IP-level traffic matching victim
+   - Filters traffic to only victim IP
+   - Useful for: General network monitoring
+
+6. NETWORK TOPOLOGY VISUALIZATION
+   - Red nodes = Gateway/Router
+   - Blue nodes = Discovered hosts
+   - Lines = Network connections
+   - Updates after each scan
+   - Interactive graph layout
+
+7. PROFESSIONAL STYLING IMPROVEMENTS
+   
+   Input Fields:
+   - Dark background (#0b1f33)
+   - Cyan text (#7fffd4)
+   - Subtle borders
+   - Rounded corners
+   
+   Buttons:
+   - Color-coded by function
+   - Hover effects
+   - Pressed states
+   - Emoji indicators
+   
+   Table:
+   - Green text for hosts
+   - Professional headers
+   - Dark theme
+   - Easy to read layout
+   
+   Log Output:
+   - Timestamp for each message
+   - Color-coded by severity
+   - Professional font (Courier New)
+   - Auto-scroll to latest
+
+USAGE WORKFLOW:
+==============
+
+1. SELECT INTERFACE
+   - Choose your network adapter
+   - Must have valid IP (not 127.0.0.1)
+
+2. SCAN NETWORK
+   - Click "🔍 Scan Network"
+   - Wait for results (cyan text)
+   - See detected hosts in green
+   - Network map updates with topology
+
+3. SETUP ATTACK
+   - Enter Target IP
+   - Enter Gateway IP
+   - View detected info in magenta
+
+4. CONFIGURE DETECTION
+   - Check which packets to monitor
+   - TCP - All connections
+   - HTTP - Only web traffic
+   - DNS - Domain lookups
+   - IP - Everything
+
+5. START SPOOF & SNIFF
+   - Click "⚡ Start ARP Spoof" (turns to stop button)
+   - Click "📡 Start Sniffing" with filters enabled
+   - Monitor log for detections (magenta)
+   - Watch for colored messages:
+     ✓ Yellow = Important events
+     ✓ Red = Errors or attacks
+     ✓ Green = Success
+     ✓ Magenta = Detections
+
+6. MONITOR OUTPUT
+   - All timestamps with [HH:MM:SS]
+   - Color indicates type:
+     Red = Error/Critical
+     Yellow = Warning/Important
+     Green = Success
+     Magenta = Detection!
+     Cyan = Info
+
+FEATURE COMBINATIONS:
+===================
+
+Detect Web Browsing:
+- Enable: HTTP, DNS, IP
+- Disable: TCP
+- See: Websites visited, URLs browsed
+
+Detect Chat Messages:
+- Enable: TCP, IP
+- Disable: HTTP, DNS
+- See: Chat connections and data
+
+Detect All Network Activity:
+- Enable: All filters
+- See: Everything on network
+
+TROUBLESHOOTING:
+===============
+
+Colors not showing?
+→ Check that matplotlib is installed
+→ Restart the application
+
+Detection filters not working?
+→ Make sure you set them BEFORE clicking Start Sniffing
+→ Check the log for "Filters enabled" message
+
+No hosts detected?
+→ Make sure gateway IP is correct
+→ Run as Administrator
+→ Select correct network interface
+
+SYSTEM REQUIREMENTS:
+===================
+- Python 3.7+
+- Administrator privileges
+- PySide6, scapy, psutil, matplotlib, networkx
+- Recommended: 4GB RAM, 1Gbps network
+
+FILES:
+=====
+mitm_gui.py - Main application (run this!)
+requirements.txt - All dependencies
+install_packages.bat - Auto-installer
+README_NETWORK_MAP.txt - Previous documentation
+QUICK_START.txt - Quick reference
+
+INSTALLATION:
+=============
+pip install PySide6 scapy psutil matplotlib networkx
+python mitm_gui.py
+
+Or:
+.\install_packages.bat
+python mitm_gui.py
+
+LEGAL DISCLAIMER:
+===============
+This tool is for EDUCATIONAL PURPOSES ONLY.
+Use only on networks you own or have permission to test.
+Unauthorized access to networks is ILLEGAL.
+The author accepts no responsibility for misuse.
+
+Version: 3.0 Professional Edition
+Date: January 2026
+License: Educational Use Only

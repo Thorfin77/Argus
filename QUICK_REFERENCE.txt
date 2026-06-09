@@ -1,0 +1,137 @@
+╔═══════════════════════════════════════════════════════════════════╗
+║      MITM PROFESSIONAL EDITION v3.0 - QUICK REFERENCE CARD        ║
+╚═══════════════════════════════════════════════════════════════════╝
+
+⚡ LAUNCH APP
+══════════════════════════════════════════════════════════════════════
+pip install PySide6 scapy psutil matplotlib networkx
+python mitm_gui.py
+
+(Run as Administrator!)
+
+═══════════════════════════════════════════════════════════════════════
+
+🎨 LOG COLORS
+══════════════════════════════════════════════════════════════════════
+🔴 RED        → Error/Failure
+🟡 YELLOW     → Warning/Important
+🟢 GREEN      → Success
+🟣 MAGENTA    → Detection Found!
+🔵 CYAN       → Information
+
+═══════════════════════════════════════════════════════════════════════
+
+🔘 BUTTONS
+══════════════════════════════════════════════════════════════════════
+🔍 Scan Network      → Find hosts on network
+⚡ ARP Spoof         → Start MITM attack
+📡 Sniffing          → Capture packets
+⏹️  Stop             → Stop current operation
+
+═══════════════════════════════════════════════════════════════════════
+
+✓ DETECTION FILTERS
+══════════════════════════════════════════════════════════════════════
+☑ TCP Traffic    → Chat, connections, data
+☑ HTTP Requests  → Web browsing, APIs
+☑ DNS Queries    → Website lookups
+☑ IP Traffic     → All network activity
+
+═══════════════════════════════════════════════════════════════════════
+
+🎯 ATTACK WORKFLOW
+══════════════════════════════════════════════════════════════════════
+1. Select Interface    → Choose network card
+2. Scan Network        → Discover hosts (see 🟣 magenta)
+3. Enter Target IP     → From scanned hosts
+4. Enter Gateway IP    → Usually 192.168.1.1
+5. Check Filters       → Select what to detect
+6. Start ARP Spoof     → Begin attack (⚡ button)
+7. Start Sniffing      → Capture packets (📡 button)
+8. Monitor Log         → Watch for 🟣 DETECTIONS!
+9. Stop                → Click ⏹️ buttons
+
+═══════════════════════════════════════════════════════════════════════
+
+📊 WHAT YOU'LL SEE
+══════════════════════════════════════════════════════════════════════
+During Scan:
+  ✓ 🔵 [*] Using interface           (cyan info)
+  ✓ 🟣 [+] HOST FOUND: 192.168.1.50 (magenta detection!)
+  ✓ 🟢 [✓] Scan complete: 5 hosts   (green success)
+
+During ARP Spoof:
+  ✓ 🟣 [+] Target: 192.168.1.50     (magenta detection)
+  ✓ 🟡 [*] Starting ARP spoof...    (yellow warning)
+  ✓ 🟢 [✓] Tables restored          (green success)
+
+During Sniffing:
+  ✓ 🟣 [TCP] Connection detected    (magenta detection!)
+  ✓ 🟣 [HTTP REQUEST] DETECTED!     (magenta detection!)
+  ✓ 🟣 [DNS] QUERY DETECTED!        (magenta detection!)
+
+═══════════════════════════════════════════════════════════════════════
+
+🔥 KEY FEATURES
+══════════════════════════════════════════════════════════════════════
+✓ Color-coded logs with timestamps
+✓ Real-time detection alerts (magenta)
+✓ Network topology visualization
+✓ Packet filtering by type
+✓ Professional dark theme
+✓ Professional styling & icons
+✓ TCP/HTTP/DNS detection
+✓ Error highlighting in red
+
+═══════════════════════════════════════════════════════════════════════
+
+⚠️  REMEMBER
+══════════════════════════════════════════════════════════════════════
+✓ Run as Administrator
+✓ Select correct interface before scanning
+✓ Enable filters BEFORE starting sniff
+✓ Watch log for magenta = detections
+✓ Green = success, Red = error
+✓ Yellow = warnings/status
+✓ Each packet shows with timestamp [HH:MM:SS]
+
+═══════════════════════════════════════════════════════════════════════
+
+📁 FILES IN FOLDER
+══════════════════════════════════════════════════════════════════════
+mitm_gui.py                  → Main application
+requirements.txt             → Dependencies
+install_packages.bat         → Auto-installer
+PROFESSIONAL_FEATURES.txt    → Full feature guide
+COLOR_FEATURE_GUIDE.txt      → Color & detection guide
+README_NETWORK_MAP.txt       → Network map info
+QUICK_START.txt              → Quick start guide
+This file                    → Quick reference
+
+═══════════════════════════════════════════════════════════════════════
+
+💡 TIPS
+══════════════════════════════════════════════════════════════════════
+• Green hosts in table = scanned and discovered
+• Red gateway node in map = network center
+• Blue host nodes = your targets
+• Check filters match what you want to see
+• Magenta text in log = packet was detected!
+• Timestamp helps track when things happened
+• Auto-scroll shows latest logs
+
+═══════════════════════════════════════════════════════════════════════
+
+COLORS:
+  🔴 RED    #ff4444
+  🟡 YELLOW #ffaa00
+  🟢 GREEN  #44ff44
+  🟣 MAGENTA #ff0088
+  🔵 CYAN   #00ffff
+
+═══════════════════════════════════════════════════════════════════════
+
+LEGAL: Educational use only. Unauthorized network access is illegal.
+
+Version 3.0 - Professional Edition
+January 2026

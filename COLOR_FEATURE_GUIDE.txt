@@ -1,0 +1,178 @@
+╔════════════════════════════════════════════════════════════════════════════╗
+║                    MITM PROFESSIONAL EDITION v3.0                          ║
+║                         COLOR & FEATURE GUIDE                               ║
+╚════════════════════════════════════════════════════════════════════════════╝
+
+📊 LOG COLOR LEGEND:
+═════════════════════════════════════════════════════════════════════════════
+
+🔴 RED (#ff4444) - ERRORS & CRITICAL
+   Examples:
+   [!] Scan error: Network unreachable
+   [!] Could not resolve MAC addresses
+   [!] Sniff error: Permission denied
+
+🟡 YELLOW/ORANGE (#ffaa00) - WARNINGS & IMPORTANT
+   Examples:
+   [*] Using interface: Ethernet
+   [*] Getting MAC addresses...
+   [*] Starting ARP spoof...
+   [*] Filters enabled - TCP: True, HTTP: True
+
+🟢 GREEN (#44ff44) - SUCCESS
+   Examples:
+   [✓] Scan complete: 5 hosts discovered
+   [✓] ARP spoof stopped and tables restored
+   [+] Sniffing on Ethernet for victim 192.168.1.100
+
+🟣 MAGENTA (#ff0088) - DETECTIONS (CRITICAL!)
+   Examples:
+   [+] HOST FOUND: 192.168.1.50 → AA:BB:CC:DD:EE:FF
+   [TCP] 192.168.1.50:49152 → 8.8.8.8:53
+   [HTTP REQUEST] DETECTED!
+   [DNS] QUERY DETECTED!
+
+🔵 CYAN (#00ffff) - INFORMATION
+   Examples:
+   [*] Interface IP: 192.168.1.100
+   [*] Network: 192.168.1.0/24
+   [*] Sending ARP requests...
+
+═════════════════════════════════════════════════════════════════════════════
+
+🎨 BUTTON COLORS:
+═════════════════════════════════════════════════════════════════════════════
+
+🔵 BLUE (#0066cc) - SCANNING
+   🔍 Scan Network
+   └─ Discovers hosts on network
+
+🔴 RED (#cc0000) - ATTACKING
+   ⚡ Start ARP Spoof
+   └─ Initiates man-in-the-middle attack
+   ⏹️ Stop ARP Spoof
+   └─ Stops attack and restores ARP tables
+
+🟢 GREEN (#00aa00) - MONITORING
+   📡 Start Sniffing
+   └─ Captures packets from victim
+   ⏹️ Stop Sniffing
+   └─ Stops packet capture
+
+═════════════════════════════════════════════════════════════════════════════
+
+🎯 DETECTION FILTERS:
+═════════════════════════════════════════════════════════════════════════════
+
+☑️ TCP TRAFFIC
+   └─ Shows: Source:Port → Dest:Port, Payload data
+   └─ Detects: Chat apps, custom protocols, data transfers
+   └─ Color: Magenta when detected
+
+☑️ HTTP REQUESTS
+   └─ Shows: Host, Path, Method, Request data
+   └─ Detects: Web browsing, API calls
+   └─ Color: Magenta when detected
+
+☑️ DNS QUERIES
+   └─ Shows: Domain names, query types
+   └─ Detects: Websites visited, DNS lookups
+   └─ Color: Magenta when detected
+
+☑️ IP TRAFFIC
+   └─ Shows: All IP-level traffic
+   └─ Detects: General network activity
+   └─ Color: Cyan for info, Magenta for detections
+
+═════════════════════════════════════════════════════════════════════════════
+
+📈 NETWORK MAP:
+═════════════════════════════════════════════════════════════════════════════
+
+🔴 RED NODE = GATEWAY/ROUTER
+   The main network hub that controls traffic
+
+🔵 BLUE NODES = DISCOVERED HOSTS
+   Your target devices on the network
+
+🔗 CONNECTING LINES
+   Shows network topology and connections
+   Updates after each network scan
+
+═════════════════════════════════════════════════════════════════════════════
+
+⏱️ TIMESTAMP FORMAT:
+═════════════════════════════════════════════════════════════════════════════
+
+[HH:MM:SS] Message content
+
+Examples:
+[14:30:45] [*] Starting network scan...
+[14:30:51] [+] HOST FOUND: 192.168.1.50 → AA:BB:CC:DD:EE:FF
+[14:30:52] [✓] Scan complete: 5 hosts discovered
+
+═════════════════════════════════════════════════════════════════════════════
+
+🚀 TYPICAL ATTACK SEQUENCE:
+═════════════════════════════════════════════════════════════════════════════
+
+Step 1: SELECT INTERFACE
+   └─ Choose from dropdown (Ethernet, Wi-Fi, etc.)
+
+Step 2: SCAN NETWORK
+   └─ Click 🔍 Scan Network
+   └─ Log shows [*] messages (cyan) during scan
+   └─ Magenta [+] for each host found
+   └─ Green [✓] when complete
+
+Step 3: CONFIGURE ATTACK
+   └─ Enter Target IP from discovered hosts
+   └─ Enter Gateway IP (usually 192.168.1.1)
+   └─ Network map updates with topology
+
+Step 4: ENABLE FILTERS
+   └─ Check detection types you want
+   └─ At least one filter should be enabled
+   └─ Ready to capture traffic
+
+Step 5: START ARP SPOOF
+   └─ Click ⚡ Start ARP Spoof
+   └─ Log shows magenta [+] for target/gateway
+   └─ Yellow [*] for packet counts
+   └─ You're now intercepting traffic
+
+Step 6: START SNIFFING
+   └─ Click 📡 Start Sniffing
+   └─ Log shows cyan [*] with enabled filters
+   └─ Watch for magenta detections!
+   └─ Each detected packet shown with timestamp
+
+Step 7: MONITOR OUTPUT
+   └─ Red = Errors (something went wrong)
+   └─ Yellow = Important events
+   └─ Green = Success
+   └─ Magenta = Packet detected! (action happened)
+
+Step 8: STOP
+   └─ Click ⏹️ buttons to stop
+   └─ ARP tables automatically restored
+   └─ Green [✓] success message
+
+═════════════════════════════════════════════════════════════════════════════
+
+💡 QUICK TIPS:
+═════════════════════════════════════════════════════════════════════════════
+
+✓ Always run as Administrator
+✓ Select correct network interface first
+✓ Check all detection filters BEFORE starting sniff
+✓ Watch log for magenta [+] or [DETECTED] messages
+✓ Use Color Legend to understand what's happening
+✓ Network map shows visual topology
+✓ Timestamps help track when packets arrived
+
+═════════════════════════════════════════════════════════════════════════════
+
+Version: 3.0 Professional Edition with Colored Logging & Filters
+Date: January 2026
+For Educational Use Only - Unauthorized access is illegal

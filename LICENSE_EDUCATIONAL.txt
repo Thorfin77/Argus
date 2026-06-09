@@ -1,0 +1,152 @@
+EDUCATIONAL USE LICENSE
+========================
+
+SOFTWARE: Argus v1.0
+AUTHOR: Argus
+PURPOSE: Computer Science & Cybersecurity Education
+
+DISCLAIMER AND LEGAL NOTICE
+============================
+
+This software is provided EXCLUSIVELY for educational and authorized testing purposes.
+It is intended for use by:
+- Computer Science Students
+- Cybersecurity Researchers
+- Authorized Network Administrators
+- Educational Institutions
+
+AUTHORIZATION REQUIREMENT
+==========================
+
+You must have EXPLICIT WRITTEN PERMISSION from the network owner or authorized 
+representative before using this software on any network or system.
+
+UNAUTHORIZED USE WARNING
+=========================
+
+Unauthorized access to computer networks is ILLEGAL in most jurisdictions and may 
+result in:
+- Criminal charges
+- Civil litigation
+- Imprisonment
+- Fines up to $100,000+
+- Criminal Record
+
+EDUCATIONAL PURPOSE ONLY
+=========================
+
+This tool is designed for:
+✓ Learning network security concepts
+✓ Understanding MITM attack mechanisms
+✓ Practicing defensive network monitoring
+✓ Computer Science education
+✓ Authorized penetration testing
+
+NOT FOR:
+✗ Unauthorized network access
+✗ Stealing data or credentials
+✗ Disrupting network services
+✗ Malicious purposes
+✗ Commercial exploitation without permission
+
+LIMITATIONS OF LIABILITY
+========================
+
+THE SOFTWARE IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND. THE AUTHOR 
+SHALL NOT BE LIABLE FOR:
+- Any damages or losses from use of this software
+- Unauthorized network access consequences
+- Data loss or corruption
+- System crashes or failures
+- Network disruptions
+
+THE USER IS SOLELY RESPONSIBLE FOR ALL ACTIONS AND CONSEQUENCES.
+
+TERMS OF USE
+============
+
+By downloading, installing, or using this software, you agree to:
+
+1. Use it ONLY for educational and authorized purposes
+2. Obtain written authorization before testing any network
+3. Comply with all applicable laws and regulations
+4. Accept full responsibility for your actions
+5. Indemnify the author from any legal liability
+6. Not attempt to cause harm through this software
+7. Not use this software for any illegal purpose
+8. Report any vulnerabilities found to proper authorities
+9. Follow responsible disclosure practices
+
+LEGAL JURISDICTION
+==================
+
+This software must be used in compliance with:
+- Computer Fraud and Abuse Act (CFAA) - USA
+- Computer Misuse Act 1990 - UK
+- Criminal Code - Canada
+- Cybercrime Directive - EU
+- Telecommunications Act - Australia
+- And all applicable local laws
+
+If in doubt, consult with legal counsel before use.
+
+PROOF OF AUTHORIZATION
+======================
+
+Keep documented proof of authorization from network owner:
+- Written permission (email is acceptable)
+- Statement of work (SOW)
+- Penetration testing contract
+- Educational institution approval
+
+REVOCATION
+==========
+
+This license may be revoked at any time if you:
+- Use the software for unauthorized purposes
+- Violate any terms of this license
+- Engage in illegal activity
+- Cause damage through misuse
+
+EDUCATIONAL COMMITMENT
+======================
+
+As an educational tool, this software:
+- Includes full source code for review
+- Uses transparent, educational algorithms
+- Contains detailed comments explaining network operations
+- Is designed to teach, not to hide malicious behavior
+- Can be audited by security professionals and educators
+
+ENDORSEMENT
+===========
+
+This software is created for legitimate educational purposes and is not affiliated 
+with any malicious software or hacking groups. It is designed to help students 
+and security professionals understand network security concepts through hands-on 
+learning.
+
+AUTHOR COMMITMENT
+=================
+
+Argus commits to:
+- Maintaining educational standards
+- Providing transparent code
+- Respecting user privacy and security
+- Following responsible disclosure
+- Supporting legitimate educational use
+
+---
+
+By using this software, you acknowledge:
+1. You have read and understood this license
+2. You have explicit authorization to use it
+3. You accept full legal responsibility
+4. You understand the severe legal consequences of misuse
+
+Signature: _________________  Date: __________
+Name: ____________________
+
+---
+
+Copyright © 2024 Argus - Educational Use Only

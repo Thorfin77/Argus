@@ -1,0 +1,785 @@
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                                                                           ║
+║            📚 Argus | Complete Developer Guide             ║
+║                                                                           ║
+║         For Computer Science Students & Red Team Learners                ║
+║              Suitable for GitHub & Educational Repositories              ║
+║                                                                           ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+
+═══════════════════════════════════════════════════════════════════════════════
+🎯 PROJECT INFORMATION
+═══════════════════════════════════════════════════════════════════════════════
+
+PROJECT NAME:    Argus
+VERSION:         1.0 (Professional Edition)
+AUTHOR:          Argus
+CATEGORY:        Educational | Cybersecurity | Network Security
+LICENSE:         Educational Use Only
+GITHUB READY:    Yes ✓
+
+PRIMARY USE CASE:
+  Teaching network security concepts through practical implementation
+  
+TARGET AUDIENCE:
+  • Computer Science students
+  • Cybersecurity learners
+  • Red team training
+  • Network administration education
+  • Penetration testing education
+
+═══════════════════════════════════════════════════════════════════════════════
+📁 PROJECT STRUCTURE
+═══════════════════════════════════════════════════════════════════════════════
+
+MITM/
+├── mitm_gui.py                      Main application (858 lines)
+├── requirements.txt                 Python dependencies
+│
+├── README.md                        GitHub-ready documentation
+├── .gitignore                       Git ignore patterns
+│
+├── DOCUMENTATION/
+│   ├── APP_LOGIC.txt               Complete functionality logic
+│   ├── PROFESSIONAL_FEATURES.txt   Feature documentation
+│   ├── COLOR_FEATURE_GUIDE.txt     Color reference guide
+│   ├── EXAMPLE_LOG_OUTPUT.txt      Sample execution output
+│   └── DESIGN_UPGRADE_v3.1.txt     UI design improvements
+│
+└── MISC/
+    ├── README.txt                  Detailed overview
+    ├── QUICK_REFERENCE.txt         Quick lookup guide
+    └── VERSION_3_UPDATE.txt        Changelog
+
+═══════════════════════════════════════════════════════════════════════════════
+🏗️ ARCHITECTURE OVERVIEW
+═══════════════════════════════════════════════════════════════════════════════
+
+LAYERED ARCHITECTURE:
+```
+┌─────────────────────────────────────────┐
+│    Presentation Layer (PySide6 GUI)     │
+│  - Main window, buttons, tables          │
+│  - Log widget, network map               │
+└─────────────────────────────────────────┘
+           ↑                    ↓
+    Signals (log)        Qt Events
+           ↓                    ↑
+┌─────────────────────────────────────────┐
+│    Business Logic Layer (QObject)       │
+│  - NetworkScanner class                  │
+│  - ARPSpoofer class                      │
+│  - PacketSniffer class                   │
+└─────────────────────────────────────────┘
+           ↓
+┌─────────────────────────────────────────┐
+│    Network Layer (Scapy)                │
+│  - ARP requests/replies                  │
+│  - Packet crafting                       │
+│  - Packet sniffing                       │
+└─────────────────────────────────────────┘
+           ↓
+┌─────────────────────────────────────────┐
+│    System Layer                         │
+│  - Raw sockets (requires admin)          │
+│  - Network interfaces                    │
+│  - System information (psutil)           │
+└─────────────────────────────────────────┘
+```
+
+DATA FLOW:
+```
+User Action → GUI Signal → Business Logic → Network Operation → Display Result
+  (Button)   (emit)       (Scanner/Spoof)  (Scapy)           (Log + Table)
+```
+
+THREADING MODEL:
+```
+Main GUI Thread (Qt Event Loop)
+    ├─ Scanner Worker Thread
+    │   └─ ARP scanning
+    │   └─ Emit log signals
+    │
+    ├─ Spoofer Worker Thread
+    │   └─ ARP packet sending
+    │   └─ Emit log signals
+    │
+    └─ Sniffer Worker Thread
+        └─ Packet capture loop
+        └─ Emit log signals
+```
+
+═══════════════════════════════════════════════════════════════════════════════
+🔑 CORE CLASSES & FUNCTIONS
+═══════════════════════════════════════════════════════════════════════════════
+
+1. DATA MODEL
+─────────────
+
+@dataclass
+class HostEntry:
+    ip: str    # IP address (e.g., "192.168.1.100")
+    mac: str   # MAC address (e.g., "3c:97:0e:a5:2d:11")
+
+Purpose: Store discovered host information
+
+
+2. COLORED LOG WIDGET
+──────────────────────
+
+class ColoredLogWidget(QPlainTextEdit):
+    COLOR_MAP = {
+        'error': '#ff4444',      Red
+        'warning': '#ffaa00',    Orange
+        'success': '#44ff44',    Green
+        'detect': '#ff0088',     Magenta
+        'info': '#00ffff',       Cyan
+        'debug': '#aaaaaa'       Gray
+    }
+    
+    def log(message, color='info'):
+        # Add timestamped, colored message
+        # Format: [HH:MM:SS] message
+
+Key Feature: Timestamp + color-coded messages
+Usage: Display all status and detection messages
+
+
+3. NETWORK SCANNER
+───────────────────
+
+class NetworkScanner(QObject):
+    Signal log(str, str)
+    Signal finished(List[HostEntry])
+    
+    def scan(iface):
+        # Discover active hosts on network
+        # Uses ARP protocol
+        # Returns list of HostEntry
+    
+    def _scan_thread(iface):
+        # Implementation of scan
+        # Runs in separate thread
+        # Emits log and finished signals
+
+How It Works:
+  1. Get network interface IP
+  2. Calculate network range from netmask
+  3. Send ARP requests to all IPs
+  4. Collect ARP replies
+  5. Parse IP and MAC from replies
+  6. Return list of discovered hosts
+
+
+4. ARP SPOOFER
+───────────────
+
+class ARPSpoofer(QObject):
+    Signal log(str, str)
+    
+    def start_spoof(target_ip, gateway_ip, iface):
+        # Start MITM attack
+        # Position between target and gateway
+    
+    def stop_spoof():
+        # Stop spoofing
+        # Restore ARP tables
+    
+    def _get_mac(ip):
+        # Resolve IP to MAC address
+        # Returns MAC or None
+    
+    def _spoof(target_ip, spoof_ip, target_mac, iface):
+        # Send ONE forged ARP packet
+        # Tell target: "spoof_ip is at my MAC"
+    
+    def _spoof_thread(target_ip, gateway_ip, iface):
+        # Main spoofing loop
+        # Continuously send ARP packets
+        # Restore on stop
+
+How It Works:
+  1. Get victim MAC address (via ARP)
+  2. Get gateway MAC address (via ARP)
+  3. Get attacker IP and MAC
+  4. Loop: Send forged ARP packets
+     - Tell victim: "I am gateway"
+     - Tell gateway: "I am victim"
+  5. On stop: Restore real ARP mappings
+
+
+5. PACKET SNIFFER
+──────────────────
+
+class PacketSniffer(QObject):
+    Signal log(str, str)
+    
+    def set_detection_filters(tcp, http, dns, ip):
+        # Configure what types of packets to detect
+    
+    def start_sniff(iface, victim_ip):
+        # Start capturing packets
+        # Filter by victim IP
+    
+    def stop_sniff():
+        # Stop sniffing
+    
+    def _sniff_thread(iface, victim_ip):
+        # Packet capture loop
+        # Analyze each packet
+        # Emit log signals for detections
+
+Detection Types:
+  • TCP: Detect TCP connections (src:port → dst:port)
+  • HTTP: Detect HTTP requests (Host, Path, Method)
+  • DNS: Detect DNS queries (Domain names)
+  • IP: Detect all IP traffic
+
+
+6. NETWORK VISUALIZATION
+─────────────────────────
+
+class NetworkMapCanvas(FigureCanvas):
+    def update_network(hosts, gateway_ip):
+        # Create network graph
+        # Show gateway (red node)
+        # Show hosts (blue nodes)
+        # Connect with edges
+        # Auto-layout with spring algorithm
+
+Features:
+  • Interactive visualization
+  • Network topology display
+  • Professional appearance
+  • Dark theme
+
+
+7. MAIN WINDOW
+───────────────
+
+class MainWindow(QMainWindow):
+    def __init__():
+        # Create main application window
+        # Setup all widgets
+        # Connect signals
+    
+    def _ui():
+        # Create user interface
+        # 3-column layout:
+        #   - Left: Controls
+        #   - Center: Network map
+        #   - Right: Log widget
+    
+    def _style():
+        # Apply color scheme
+        # Set fonts
+        # Apply palette
+    
+    def start_scan():
+        # Scan network
+    
+    def toggle_spoof():
+        # Start/stop ARP spoof
+    
+    def toggle_sniff():
+        # Start/stop sniffing
+    
+    def log(text, color='info'):
+        # Display log message
+        # Thread-safe wrapper
+
+═══════════════════════════════════════════════════════════════════════════════
+🔄 WORKFLOW LOGIC
+═══════════════════════════════════════════════════════════════════════════════
+
+COMPLETE ATTACK WORKFLOW:
+
+Step 1: SELECT INTERFACE
+  User: Click dropdown → Select "Ethernet"
+  System: Store selected interface name
+
+Step 2: SCAN NETWORK
+  User: Click "🔍 Scan Network" button
+  System:
+    ├─ Create NetworkScanner instance
+    ├─ Call scan(interface_name)
+    ├─ Spawn worker thread
+    └─ Worker thread:
+        ├─ Get interface IP
+        ├─ Get netmask
+        ├─ Calculate network range
+        ├─ Send ARP to all IPs
+        ├─ Parse replies
+        ├─ Emit log signals
+        ├─ Emit finished signal
+        └─ UI populates table
+  
+  Result:
+    - Log shows host discoveries (magenta)
+    - Table shows IP and MAC
+    - Network map updates with hosts
+
+Step 3: SETUP ATTACK
+  User:
+    ├─ Enter Target IP (e.g., 192.168.1.100)
+    ├─ Enter Gateway IP (e.g., 192.168.1.1)
+    └─ Click "⚡ Start ARP Spoof"
+  
+  System:
+    ├─ Validate IPs provided
+    ├─ Create ARPSpoofer instance
+    ├─ Call start_spoof(target, gateway, iface)
+    ├─ Spawn worker thread
+    └─ Worker thread:
+        ├─ Get victim MAC (ARP)
+        ├─ Get gateway MAC (ARP)
+        ├─ Get attacker IP/MAC
+        ├─ Loop: Send forged ARP packets
+        │  ├─ Victim: "I am gateway"
+        │  └─ Gateway: "I am victim"
+        └─ Emit log signals continuously
+  
+  Result:
+    - Log shows target/gateway (magenta)
+    - Button changes to "⏹️ Stop ARP Spoof"
+    - Attacker is now MITM (traffic flows through)
+
+Step 4: CONFIGURE FILTERS
+  User:
+    ├─ Check "TCP Traffic"
+    ├─ Check "HTTP Requests"
+    ├─ Uncheck "DNS Queries"
+    └─ Uncheck "All IP Traffic"
+  
+  System:
+    └─ Stores filter preferences
+
+Step 5: START SNIFFING
+  User:
+    ├─ Enter Victim IP
+    └─ Click "📡 Start Sniffing"
+  
+  System:
+    ├─ Create PacketSniffer instance
+    ├─ Call set_detection_filters(...) with settings
+    ├─ Call start_sniff(iface, victim_ip)
+    ├─ Spawn worker thread
+    └─ Worker thread:
+        ├─ Loop: Capture packets
+        │  ├─ Check destination/source is victim
+        │  ├─ Check enabled filters
+        │  ├─ Parse packet layers
+        │  ├─ Extract relevant data
+        │  └─ Emit log signal (magenta for detection)
+        └─ Continue until stop_sniff() called
+  
+  Result:
+    - Log shows TCP connections (magenta)
+    - Log shows HTTP requests (magenta)
+    - Payloads shown in yellow
+    - Real-time detection alerts
+
+Step 6: MONITOR DETECTIONS
+  Watch for 🟣 MAGENTA lines in log:
+    - [TCP] connection details
+    - [HTTP REQUEST] with host/path
+    - [DNS] query details
+    - Payload data
+
+Step 7: STOP OPERATIONS
+  User:
+    ├─ Click "⏹️ Stop ARP Spoof"
+    └─ Click "⏹️ Stop Sniffing"
+  
+  System:
+    ├─ ARPSpoofer:
+    │  ├─ Set is_running = False
+    │  ├─ Send legitimate ARP packets 10 times
+    │  ├─ Restore victim's real gateway ARP
+    │  └─ Restore gateway's real victim ARP
+    │
+    └─ PacketSniffer:
+       ├─ Set is_running = False
+       └─ Stop packet capture
+  
+  Result:
+    - Network restored to normal
+    - All threads cleanly exit
+    - Success messages (green)
+    - Ready for new operations
+
+═══════════════════════════════════════════════════════════════════════════════
+🔗 SIGNAL & SLOT CONNECTIONS
+═══════════════════════════════════════════════════════════════════════════════
+
+Qt Signals (Thread-Safe Communication):
+
+NetworkScanner.log (str, str) →
+  ├─ MainWindow.log(text, color)
+  │   └─ ColoredLogWidget.log(text, color)
+
+NetworkScanner.finished (List[HostEntry]) →
+  └─ MainWindow.populate(hosts)
+      └─ Update table, network map
+
+ARPSpoofer.log (str, str) →
+  ├─ MainWindow.log(text, color)
+  │   └─ ColoredLogWidget.log(text, color)
+
+PacketSniffer.log (str, str) →
+  ├─ MainWindow.log(text, color)
+  │   └─ ColoredLogWidget.log(text, color)
+
+═══════════════════════════════════════════════════════════════════════════════
+🛡️ ERROR HANDLING STRATEGY
+═══════════════════════════════════════════════════════════════════════════════
+
+LAYER 1: User Input Validation
+  ├─ Check interface is selected
+  ├─ Check IP addresses provided
+  ├─ Check IPs are valid format
+  └─ Show message box on error
+
+LAYER 2: System Checks
+  ├─ Check interface has valid IP
+  ├─ Check network is accessible
+  ├─ Check admin privileges
+  └─ Log errors in GUI
+
+LAYER 3: Operation Try/Catch
+  ├─ Catch network timeouts
+  ├─ Catch permission errors
+  ├─ Catch parse errors
+  ├─ Log exceptions with traceback
+  └─ Continue or graceful exit
+
+LAYER 4: Cleanup
+  ├─ Always restore ARP tables
+  ├─ Always stop threads safely
+  ├─ Always release resources
+  └─ Log completion
+
+═══════════════════════════════════════════════════════════════════════════════
+📊 LOGGING STRATEGY
+═══════════════════════════════════════════════════════════════════════════════
+
+COLOR USAGE BY COMPONENT:
+
+NetworkScanner:
+  🔵 [info] cyan         - General messages
+  🟣 [detect] magenta    - Host found!
+  🟢 [success] green     - Scan complete
+  🔴 [error] red         - Errors
+
+ARPSpoofer:
+  🔵 [info] cyan         - Setup messages
+  🟣 [detect] magenta    - Target/gateway details
+  🟢 [success] green     - Started/restored
+  🟡 [warning] yellow    - Important status
+  🔴 [error] red         - Errors
+
+PacketSniffer:
+  🟢 [success] green     - Sniffing started
+  🔵 [info] cyan         - Configuration
+  🟣 [detect] magenta    - Detected packets!
+  🟡 [warning] yellow    - Payload data
+  🔴 [error] red         - Errors
+
+USER GUIDANCE:
+  Watch for 🟣 MAGENTA = Detection found!
+  Watch for 🔴 RED = Error occurred
+  🟡 YELLOW = Important information
+  🟢 GREEN = Operation successful
+  🔵 CYAN = General information
+
+═══════════════════════════════════════════════════════════════════════════════
+🚀 DEPLOYMENT FOR GITHUB
+═══════════════════════════════════════════════════════════════════════════════
+
+REPOSITORY STRUCTURE:
+
+github.com/BH-Unknown/Argus/
+├── README.md                          ← Start here
+├── .gitignore                         ← Git ignore patterns
+├── requirements.txt                   ← Dependencies
+├── LICENSE                            ← Educational license
+│
+├── src/
+│   └── mitm_gui.py                   ← Main application
+│
+├── docs/
+│   ├── APP_LOGIC.txt                 ← Complete documentation
+│   ├── SETUP.md                      ← Installation guide
+│   ├── USAGE.md                      ← Usage guide
+│   └── CONCEPTS.md                   ← Educational concepts
+│
+└── examples/
+    ├── scenario_1.md                 ← Lab scenario 1
+    ├── scenario_2.md                 ← Lab scenario 2
+    └── scenario_3.md                 ← Lab scenario 3
+
+GITHUB FILES:
+
+1. README.md (MAIN)
+   └─ Overview, quick start, features
+
+2. .gitignore
+   └─ Ignore Python build artifacts
+
+3. requirements.txt
+   └─ All Python dependencies
+
+4. LICENSE
+   └─ Educational use only
+
+5. CONTRIBUTING.md (OPTIONAL)
+   └─ How to contribute
+
+README SECTIONS:
+  ✓ Title & description
+  ✓ Features list
+  ✓ Quick start guide
+  ✓ Architecture overview
+  ✓ How it works (with examples)
+  ✓ Requirements
+  ✓ Installation
+  ✓ Usage workflow
+  ✓ Legal disclaimer
+  ✓ Educational concepts
+  ✓ Troubleshooting
+  ✓ Resources
+  ✓ License
+
+═══════════════════════════════════════════════════════════════════════════════
+📚 EDUCATIONAL TEACHING POINTS
+═══════════════════════════════════════════════════════════════════════════════
+
+CONCEPTS STUDENTS LEARN:
+
+1. Network Fundamentals
+   ├─ IP addressing (IPv4)
+   ├─ MAC addresses
+   ├─ Network masks
+   ├─ Gateway concept
+   └─ Broadcast domains
+
+2. ARP Protocol (Critical!)
+   ├─ ARP request/reply mechanism
+   ├─ ARP broadcast
+   ├─ MAC address resolution
+   ├─ ARP table management
+   └─ Why ARP lacks authentication
+
+3. MITM Attack Theory
+   ├─ How to position between hosts
+   ├─ Traffic interception
+   ├─ Packet analysis
+   ├─ Attack workflow
+   └─ Ethical vs unethical use
+
+4. Packet Structure
+   ├─ Ethernet frame format
+   ├─ IP header fields
+   ├─ TCP/UDP headers
+   ├─ HTTP structure
+   └─ Layer encapsulation
+
+5. Network Programming
+   ├─ Raw socket creation
+   ├─ Packet crafting
+   ├─ Packet capture
+   ├─ Protocol parsing
+   └─ Error handling
+
+6. Python Programming
+   ├─ Multi-threading
+   ├─ Scapy library
+   ├─ Qt GUI development
+   ├─ Signal/slot pattern
+   └─ Exception handling
+
+7. Security Concepts
+   ├─ Vulnerability assessment
+   ├─ Attack methodology
+   ├─ Defensive measures
+   ├─ Encryption importance
+   └─ Network monitoring
+
+═══════════════════════════════════════════════════════════════════════════════
+✅ QUALITY CHECKLIST
+═══════════════════════════════════════════════════════════════════════════════
+
+Code Quality:
+  ✓ Well-commented code
+  ✓ Proper exception handling
+  ✓ Thread-safe operations
+  ✓ Resource cleanup
+  ✓ No memory leaks
+  ✓ Professional style
+
+Documentation:
+  ✓ README.md complete
+  ✓ Code comments
+  ✓ Docstrings for functions
+  ✓ Usage examples
+  ✓ Troubleshooting guide
+  ✓ Educational materials
+
+Testing:
+  ✓ Works on Windows
+  ✓ Works on Linux (with sudo)
+  ✓ Works on macOS
+  ✓ Handles errors gracefully
+  ✓ Thread safety verified
+
+Security:
+  ✓ Legal disclaimer included
+  ✓ Ethical guidelines provided
+  ✓ No malicious features
+  ✓ Educational purpose clear
+  ✓ User warnings provided
+
+GitHub:
+  ✓ .gitignore present
+  ✓ requirements.txt complete
+  ✓ Professional README
+  ✓ Clear structure
+  ✓ Easy to clone and run
+
+═══════════════════════════════════════════════════════════════════════════════
+🎓 STUDENT LEARNING OUTCOMES
+═══════════════════════════════════════════════════════════════════════════════
+
+After using this tool, students will understand:
+
+KNOWLEDGE:
+  ✓ How ARP protocol works
+  ✓ How MITM attacks are executed
+  ✓ How packet sniffing captures data
+  ✓ Why encryption is important
+  ✓ How networks are structured
+  ✓ Why network security matters
+
+SKILLS:
+  ✓ Network reconnaissance techniques
+  ✓ Protocol-level understanding
+  ✓ Packet analysis methods
+  ✓ Multi-threaded programming
+  ✓ GUI application development
+  ✓ Network diagnostics
+
+ETHICAL UNDERSTANDING:
+  ✓ Legal consequences of hacking
+  ✓ Difference between authorized/unauthorized
+  ✓ Professional responsibility
+  ✓ Defensive mindset
+  ✓ Proper lab setup
+  ✓ Permission requirements
+
+═══════════════════════════════════════════════════════════════════════════════
+🔧 TROUBLESHOOTING FOR DEVELOPERS
+═══════════════════════════════════════════════════════════════════════════════
+
+COMMON DEVELOPMENT ISSUES:
+
+Issue: "Scapy not working"
+Solution:
+  ├─ Check admin privileges
+  ├─ Verify scapy installed: pip install scapy
+  ├─ Check network drivers
+  └─ Try: python -c "import scapy; print(scapy.__version__)"
+
+Issue: "GUI not responsive"
+Solution:
+  ├─ Check threading is used
+  ├─ Check daemon=True on threads
+  ├─ Verify signals are emitted
+  └─ Check main thread isn't blocked
+
+Issue: "Signals not working"
+Solution:
+  ├─ Check class inherits QObject
+  ├─ Check Signal is defined at class level
+  ├─ Verify connect() is called
+  └─ Check signal parameters match slot
+
+Issue: "Packets not captured"
+Solution:
+  ├─ Check interface is correct
+  ├─ Check victim IP is correct
+  ├─ Verify ARP spoof is running
+  ├─ Check filters are enabled
+  └─ Try different interface
+
+═══════════════════════════════════════════════════════════════════════════════
+📖 READING ORDER FOR STUDENTS
+═══════════════════════════════════════════════════════════════════════════════
+
+For First-Time Readers:
+
+1. START HERE: README.md
+   └─ Overview, features, quick start
+
+2. THEN: PROFESSIONAL_FEATURES.txt
+   └─ Feature guide and setup
+
+3. NEXT: APP_LOGIC.txt
+   └─ How each component works
+
+4. THEN: This document (DEVELOPER_GUIDE.txt)
+   └─ Architecture and development
+
+5. FINALLY: EXAMPLE_LOG_OUTPUT.txt
+   └─ See actual execution
+
+For Developers:
+
+1. README.md
+   └─ Project overview
+
+2. This document
+   └─ Architecture details
+
+3. APP_LOGIC.txt
+   └─ Function documentation
+
+4. Source code (mitm_gui.py)
+   └─ Implementation details
+
+═══════════════════════════════════════════════════════════════════════════════
+🎉 CONCLUSION
+═══════════════════════════════════════════════════════════════════════════════
+
+This tool provides:
+
+✓ Complete implementation of network attack concepts
+✓ Professional-grade GUI application
+✓ Comprehensive documentation
+✓ Educational learning materials
+✓ GitHub-ready repository structure
+✓ Real-world security concepts
+
+Perfect for:
+✓ Computer Science education
+✓ Cybersecurity training
+✓ Red team preparation
+✓ Understanding network security
+✓ Professional development
+
+Remember:
+✓ Use ethically
+✓ Use legally
+✓ Use for learning only
+✓ Respect others' networks
+✓ Follow responsible disclosure
+
+═══════════════════════════════════════════════════════════════════════════════
+
+Version: 1.0
+Author: Argus
+Date: January 16, 2026
+Status: Complete & GitHub Ready ✓
+
+For questions, check APP_LOGIC.txt for detailed documentation!
+
+═══════════════════════════════════════════════════════════════════════════════
